@@ -1,44 +1,82 @@
-# camera-test
-[camera-test.html](https://github.com/user-attachments/files/27315515/camera-test.html)
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로컬 카메라 테스트</title>
+    <title>화이트 해커 카메라 권한 데모</title>
     <style>
-        body { font-family: Arial; text-align: center; margin: 20px; }
-        video { width: 640px; max-width: 100%; border: 2px solid #333; border-radius: 8px; }
-        button { padding: 12px 24px; font-size: 18px; margin: 10px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 20px; 
+            background: #f0f0f0;
+        }
+        h1 { color: #d32f2f; }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        video { 
+            width: 640px; 
+            max-width: 100%; 
+            border: 3px solid #d32f2f; 
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        button { 
+            padding: 15px 30px; 
+            font-size: 18px; 
+            margin: 10px; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .start { background: #d32f2f; color: white; }
+        .stop { background: #333; color: white; }
     </style>
 </head>
 <body>
-    <h1>로컬 카메라 테스트</h1>
-    <p>버튼을 누르면 카메라 권한을 요청합니다.</p>
+    <h1>🔴 화이트 해커 학습용 데모</h1>
     
-    <button onclick="startCamera()">📹 카메라 켜기</button>
-    <button onclick="stopCamera()">⏹️ 카메라 끄기</button>
-    
+    <div class="warning">
+        <strong>⚠️ 교육용 시연입니다.</strong><br>
+        이 사이트는 웹을 통해 카메라 권한을 얻는 과정을 보여주는 학습용 데모입니다.<br>
+        <strong>테스트 후에는 반드시 권한을 해제해주세요.</strong>
+    </div>
+
+    <p>버튼을 누르면 카메라 접근 권한을 요청합니다.</p>
+   
+    <button class="start" onclick="startCamera()">📹 카메라 켜기 (시연 시작)</button>
+    <button class="stop" onclick="stopCamera()">⏹️ 카메라 끄기</button>
+   
     <br><br>
     <video id="video" autoplay playsinline></video>
     
+    <p id="status"></p>
+
     <script>
         let stream = null;
 
         async function startCamera() {
+            const status = document.getElementById('status');
             try {
-                // 카메라만 요청 (마이크는 false)
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: true, 
-                    audio: false 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
                 });
                 
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-                console.log("✅ 카메라가 켜졌습니다.");
+                document.getElementById('video').srcObject = stream;
+                status.innerHTML = "✅ <strong>카메라가 활성화되었습니다.</strong> (시연 중)";
+                status.style.color = "green";
+                console.log("카메라 ON");
             } catch (err) {
-                console.error("❌ 오류:", err);
-                alert("카메라 접근이 거부되었거나 오류가 발생했습니다.\n" + err.message);
+                status.innerHTML = "❌ 권한이 거부되었습니다.";
+                status.style.color = "red";
+                console.error(err);
             }
         }
 
@@ -47,11 +85,10 @@
                 stream.getTracks().forEach(track => track.stop());
                 document.getElementById('video').srcObject = null;
                 stream = null;
-                console.log("⏹️ 카메라가 꺼졌습니다.");
+                document.getElementById('status').innerHTML = "⏹️ 카메라가 꺼졌습니다.";
             }
         }
 
-        // 페이지 종료 시 자동 정리
         window.addEventListener('beforeunload', stopCamera);
     </script>
 </body>
